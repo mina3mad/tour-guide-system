@@ -1,0 +1,15 @@
+{
+    "emailExist":"Email already exists",
+    "userNotFound":"User not found",
+    "phoneExist":"Phone already exists",
+    "failedOtp":"Failed to send OTP number",
+    "signUpSuccessfully":"Signup successful. OTP number sent to your email",
+    "otpSend":"OTP number sent successfully",
+    "otpSentLessThanOneMinute":"OTP was sent less than 1 minute ago. Please wait",
+    "invalidOtpCode":"Invalid OTP number",
+    "otpCodeExpired":"Invalid or expired OTP number",
+    "userAlreadyVerified":"You are already verified",
+    "verifiedSuccessfully":"Verified successfully",
+    "invalidCredentials":"Invalid credentials",
+    "passwordResetSuccessfully":"Password Reset Successfully"
+}
