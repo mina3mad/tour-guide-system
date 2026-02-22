@@ -1,0 +1,10 @@
+{
+  "forgetPassword": {
+    "subject": "Your GuideHub password reset code (valid for 15 minutes)",
+    "body": "Hi !👋,\n\nWe received a request to reset your GuideHub account password.\n\n🔐 Your verification code is: {{code}}\n\nThis code will expire in {{minutes}} minutes.\n\nEnter this code to securely reset your password.\n\nIf you didn’t request this, you can safely ignore this email.\n\nBest regards,\nGuideHub Team 🌍"
+  },
+  "createAccount": {
+    "subject": "Welcome to GuideHub – Connect with Local Experts!",
+    "body": "Hello ! 👋,\n\nWelcome to GuideHub! You're now one step closer to connecting with professional local tour guides.\n\n✨ Your verification code is: {{code}}\n\nThis code will expire in {{minutes}} minutes.\n\nEnter this code to activate your account and start exploring guided experiences.\n\nWe’re excited to have you with us!\nGuideHub Team 🌍"
+  }
+}
