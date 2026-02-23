@@ -33,7 +33,7 @@ export class CreateUsersTable1771188911602 implements MigrationInterface {
             name: 'gender',
             type: 'enum',
             enum: ['Male', 'Female', 'PreferNotToSay'],
-            isNullable: false,
+            isNullable: true,
           },
           {
             name: 'password',
@@ -62,6 +62,17 @@ export class CreateUsersTable1771188911602 implements MigrationInterface {
           {
             name: 'deviceToken',
             type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'googleId',
+            type: 'varchar(255)',
+            isNullable: true,
+            isUnique: true,
+          },
+          {
+            name: 'avatar',
+            type: 'varchar(255)',
             isNullable: true,
           },
           {

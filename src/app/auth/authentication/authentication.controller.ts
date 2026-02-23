@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { CreateUserDto } from 'src/app/user-profiles/users/dto/create-user.dto';
 import { User } from 'src/app/user-profiles/users/entities/user.entity';
@@ -6,6 +6,7 @@ import { UserResponseDto } from 'src/app/user-profiles/users/dto/user-response.d
 import { AuthLoginInputDto } from './dto/auth-login-input.dto';
 import { AuthLoginResponseDto } from './dto/auth-login-response.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -30,5 +31,19 @@ export class AuthenticationController {
   @Patch('resetPassword')
   async resetPassword(@Body() body: ResetPasswordDto) {
     return await this.authenticationService.resetPassword(body);
+  }
+
+  //redirect to Google
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    // Passport handles redirect
+  }
+
+  //callback from Google
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req) {
+    return this.authenticationService.googleLogin(req.user);
   }
 }
