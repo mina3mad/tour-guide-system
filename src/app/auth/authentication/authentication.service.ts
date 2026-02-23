@@ -21,6 +21,7 @@ import { JwtService } from '@nestjs/jwt';
 import { OtpCode } from '../otp-codes/entities/otp-code.entity';
 import { OtpCodeStatus } from '../otp-codes/enum/otp-code-status.enum';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserGender } from 'src/app/user-profiles/users/enum/user-gender.enum';
 
 @Injectable()
 export class AuthenticationService {
@@ -136,9 +137,9 @@ export class AuthenticationService {
   }
 
   async resetPassword(
-    resetPasswordDto:ResetPasswordDto
+    resetPasswordDto: ResetPasswordDto,
   ): Promise<{ message: string }> {
-    const{email,newPassword}=resetPasswordDto;
+    const { email, newPassword } = resetPasswordDto;
     const emailLowerCase = email.toLowerCase();
     const user = await this.userRepository.findOne({
       where: { email: emailLowerCase },
@@ -166,5 +167,54 @@ export class AuthenticationService {
     await this.userRepository.save(user);
 
     return { message: this.i18n.translate('common.passwordResetSuccessfully') };
+  }
+
+  async googleLogin(googleUser: {
+    googleId: string;
+    email: string;
+    avatar: string;
+    firstName: string;
+    lastName: string;
+    gender?: string;
+  }): Promise<AuthLoginResponseDto> {
+    const emailLowerCase = googleUser.email.toLowerCase();
+
+    let user = await this.userRepository.findOne({
+      where: { email: emailLowerCase },
+    });
+
+    if (user) {
+      // يوزر موجود - ربط الـ googleId لو مش مربوط
+      if (!user.googleId) {
+        user.googleId = googleUser.googleId;
+        user.avatar = googleUser.avatar;
+        user.isVerified = true;
+        await this.userRepository.save(user);
+      }
+    } else {
+      // يوزر جديد - إنشاء account
+      user = this.userRepository.create({
+        email: emailLowerCase,
+        googleId: googleUser.googleId,
+        avatar: googleUser.avatar,
+        isVerified: true,
+        password: null,
+      });
+      await this.userRepository.save(user);
+    }
+
+    const token = this.jwt.sign(
+      { userId: user.id, userRole: user.role },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: Number(process.env.JWT_EXPIRATION),
+      },
+    );
+
+    const userRes = plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+
+    return { token, user: userRes };
   }
 }
