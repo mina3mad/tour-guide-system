@@ -7,6 +7,7 @@ import { AuthLoginInputDto } from './dto/auth-login-input.dto';
 import { AuthLoginResponseDto } from './dto/auth-login-response.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -24,8 +25,25 @@ export class AuthenticationController {
   @HttpCode(200)
   async login(
     @Body() authLoginInput: AuthLoginInputDto,
-  ): Promise<AuthLoginResponseDto> {
-    return await this.authenticationService.login(authLoginInput);
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
+    // return await this.authenticationService.login(authLoginInput);
+    const { accessToken, refreshToken, user } =
+    await this.authenticationService.login(authLoginInput);
+
+  // نحط الريفريش في HttpOnly Cookie
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // false =>  true في production (HTTPS)
+    sameSite: 'strict',
+    path:'/api/token/refresh',
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
+  });
+
+  return {
+    accessToken,
+    user,
+  };
   }
 
   @Patch('resetPassword')
@@ -33,7 +51,7 @@ export class AuthenticationController {
     return await this.authenticationService.resetPassword(body);
   }
 
-  //redirect to Google
+  // redirect to Google
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth() {
@@ -43,7 +61,23 @@ export class AuthenticationController {
   //callback from Google
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req) {
-    return this.authenticationService.googleLogin(req.user);
+  async googleCallback(@Req() req,
+@Res({ passthrough: true }) res: Response) {
+    // return this.authenticationService.googleLogin(req.user);
+    const { accessToken, refreshToken, user } =
+    await this.authenticationService.googleLogin(req.user);
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    path: '/api/token/refresh',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return {
+    accessToken,
+    user,
+  };
   }
 }

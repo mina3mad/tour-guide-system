@@ -5,6 +5,7 @@ import compression from 'compression';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap():Promise<void>{
   moment.tz.setDefault('Africa/Cairo');
@@ -13,6 +14,7 @@ async function bootstrap():Promise<void>{
 
   app.setGlobalPrefix('api');
   app.use(compression());
+  app.use(cookieParser())
 
   // CORS configuration
   app.enableCors({

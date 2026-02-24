@@ -3,10 +3,11 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { UserGender } from '../enum/user-gender.enum';
 import { UserRole } from '../enum/user-role.enum';
 import { OtpCode } from 'src/app/auth/otp-codes/entities/otp-code.entity';
+import { RefreshToken } from 'src/app/auth/tokens/entities/token.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
-  @Column({ unique: true ,nullable:true})
+  @Column({ unique: true, nullable: true })
   email: string;
 
   @Column({ nullable: true, unique: true })
@@ -15,12 +16,12 @@ export class User extends BaseEntity {
   @Column({
     type: 'enum',
     enum: UserGender,
-    nullable:true
+    nullable: true,
   })
   gender: UserGender;
 
   // @Column({select:false})
-  @Column({nullable:true})
+  @Column({ nullable: true })
   password: string;
 
   @Column({
@@ -45,8 +46,8 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   avatar: string;
 
-  //   @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
-  //   refreshTokens: RefreshToken[];
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
 
   @OneToMany(() => OtpCode, (otpCode) => otpCode.user)
   otpCodes: OtpCode[];

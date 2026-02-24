@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './app/user-profiles/users/entities/user.entity';
 import { I18n_Module } from './i18n/i18n.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -22,6 +23,10 @@ import { I18n_Module } from './i18n/i18n.module';
           limit: 10,
         },
       ],
+    }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
     }),
     DatabaseModule,
     I18n_Module,
