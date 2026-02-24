@@ -17,11 +17,11 @@ import { UserResponseDto } from 'src/app/user-profiles/users/dto/user-response.d
 import { plainToInstance } from 'class-transformer';
 import { AuthLoginInputDto } from './dto/auth-login-input.dto';
 import { AuthLoginResponseDto } from './dto/auth-login-response.dto';
-import { JwtService } from '@nestjs/jwt';
 import { OtpCode } from '../otp-codes/entities/otp-code.entity';
 import { OtpCodeStatus } from '../otp-codes/enum/otp-code-status.enum';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserGender } from 'src/app/user-profiles/users/enum/user-gender.enum';
+import { TokensService } from '../tokens/tokens.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -32,7 +32,7 @@ export class AuthenticationService {
     private readonly otpRepository: Repository<OtpCode>,
     private readonly otpCodeService: OtpCodesService,
     private readonly i18n: CustomI18nService,
-    private readonly jwt: JwtService,
+    private readonly tokensService: TokensService,
   ) {}
 
   async signUp(
@@ -116,14 +116,9 @@ export class AuthenticationService {
       });
     }
 
-    // Generate an access token for the authenticated user
-    const token = this.jwt.sign(
-      { userId: user.id, userRole: user.role },
-      {
-        secret: process.env.JWT_SECRET,
-        expiresIn: Number(process.env.JWT_EXPIRATION),
-      },
-    );
+    // Generate an access and refresh token for the authenticated user
+    const { accessToken, refreshToken } =
+      await this.tokensService.generateTokens(user);
 
     //  const { password, ...userResponse } = user;
     const userRes = plainToInstance(UserResponseDto, user, {
@@ -131,7 +126,8 @@ export class AuthenticationService {
     });
 
     return {
-      token: token,
+      accessToken,
+      refreshToken,
       user: userRes,
     };
   }
@@ -203,18 +199,16 @@ export class AuthenticationService {
       await this.userRepository.save(user);
     }
 
-    const token = this.jwt.sign(
-      { userId: user.id, userRole: user.role },
-      {
-        secret: process.env.JWT_SECRET,
-        expiresIn: Number(process.env.JWT_EXPIRATION),
-      },
-    );
-
+    const { accessToken, refreshToken } =
+      await this.tokensService.generateTokens(user);
     const userRes = plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
 
-    return { token, user: userRes };
+    return {
+      accessToken,
+      refreshToken,
+      user: userRes,
+    };
   }
 }
